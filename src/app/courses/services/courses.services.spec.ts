@@ -4,9 +4,10 @@ import {
   HttpClientTestingModule,
   HttpTestingController,
 } from "@angular/common/http/testing";
-import { COURSES } from "../../../../server/db-data";
+import { COURSES, findLessonsForCourse } from "../../../../server/db-data";
 import { Course } from "../model/course";
 import { HttpErrorResponse } from "@angular/common/http";
+import { toNumber } from "cypress/types/lodash";
 
 describe("CoursesService", () => {
   let coursesService: CoursesService;
@@ -114,8 +115,37 @@ describe("CoursesService", () => {
     });
   });
 
+  // Testing Http Request with Parameters
+  it("should find a list of lessons", () => {
+    // Setting up the service call
+    coursesService.findLessons(12).subscribe({
+      next: (lessons) => {
+        // Expectations
+        // These are the expectations we expect to have when this request is completed
+        expect(lessons).toBeTruthy();
+        expect(lessons.length).toBe(3);
+      },
+    });
 
-  
+    // Mocking the http request
+    const request = httpTestingController.expectOne(
+      (request) => request.url == "/api/lessons"
+    );
+
+    // Expecations for the request
+    expect(request.request.method).toEqual("GET");
+    // Check if the request params include the correct params
+    expect(request.request.params.get("courseId")).toEqual("12");
+    expect(request.request.params.get("filter")).toEqual("");
+    expect(request.request.params.get("sortOrder")).toEqual("asc");
+    expect(request.request.params.get("pageNumber")).toEqual("0");
+    expect(request.request.params.get("pageSize")).toEqual("3");
+
+    // Trigger the request
+    request.flush({
+      payload: findLessonsForCourse(12).slice(0, 3),
+    });
+  });
 
   // After each test this will be executed
   afterEach(() => {
