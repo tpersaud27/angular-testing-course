@@ -44,6 +44,23 @@ describe("CoursesCardListComponent", () => {
   });
   // Asserting the content of the list is correct by checking the first course
   it("should display the first course", () => {
-    pending();
+    // This helper method returns a mock data of courses that are ordered by sequence number
+    component.courses = setupCourses();
+    fixture.detectChanges();
+    // This is the first course in the mock data
+    const course = component.courses[0];
+    // These are the html element we want to check for
+    const card = element.query(By.css(".course-card:first-child"));
+    const title = card.query(By.css("mat-card-title"));
+    const image = card.query(By.css("img"));
+
+    // Expectations
+    
+    expect(card).toBeTruthy("Could not find course card");
+    // This will return the text content of the mat-card-title element
+    // We want to check if the title matches the same one from the mock dataset
+    expect(title.nativeElement.textContent).toBe(course.titles.description);
+    // Check the source element of the image
+    expect(image.nativeElement.src).toBe(course.iconUrl);
   });
 });
